@@ -4,10 +4,37 @@ require("dotenv").config();
 var fs = require('fs');
 var request = require('request');
 
+// LIRI flow control
 var operation = process.argv[2]
+switch(operation){
+  case 'my-tweets':
+    doTweets();
+    break;
+  case 'spotify-this-song':
+    doSpotify();
+    break;
+  case 'movie-this':
+    doMovie();
+    break;
+  case 'do-what-it-says':
+    doRandom();
+    break;
+  case 'help':
+    doHelp();
+    break;
+  default:
+    console.log("Try 'node liri help'");   
+}
 
+function doTweets(){
+  console.log('do tweets stuff here');
+}
 
-if (operation === 'movie-this') {
+function doSpotify(){
+  console.log('do spotify stuff here');
+}
+
+function doMovie(){
   // assemble movie name
   var movieName = "";
   for (i=3; i<process.argv.length; i++){
@@ -26,23 +53,24 @@ if (operation === 'movie-this') {
   request.get(queryUrl, function(err, res, body){
     movieObj = JSON.parse(body);
     // console.log(movieObj);
-    var imdbRating;
-    var rotTomatoes;
 
+    // loop through the Ratings array of objects  
+    var imdb_rating;
+    var rotTomatoes;
     for (i=0; i<movieObj.Ratings.length; i++){
       if (movieObj.Ratings[i].Source === 'Internet Movie Database') {
-        imdbRating = movieObj.Ratings[i].value;
-      }
-      else if (movieObj.Ratings[i].Source === 'Rotten Tomatoes') {
+        imdb_rating = movieObj.Ratings[i].Value;
+      };
+      if (movieObj.Ratings[i].Source === 'Rotten Tomatoes') {
         rotTomatoes = movieObj.Ratings[i].Value;
       };
     };
 
-
+    // output movie data to console
     console.log('Title: '+movieObj.Title);
     console.log('Year: '+movieObj.Year);
-    if (imdbRating){
-      console.log('IMDB Rating: '+imdbRating);
+    if (imdb_rating){
+      console.log('IMDB Rating: '+imdb_rating);
     };
     if (rotTomatoes){
       console.log('Rotten Tomatoes Score: '+rotTomatoes);
@@ -55,4 +83,13 @@ if (operation === 'movie-this') {
     console.log('Actors: '+movieObj.Actors);
     
   });
+}
+  
+function doHelp(){
+  console.log('Usage: node liri [operation] [arguments]');
+  console.log('Operations:');
+  console.log('  my-tweets                  [no arguments]');
+  console.log('  spotify-this-song          [song title]');
+  console.log('  movie-this                 [movie title]');
+  console.log('  do-what-it-says            [no arguments]');
 }
