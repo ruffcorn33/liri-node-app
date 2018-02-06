@@ -14,6 +14,7 @@ var params = "";
 for(i=3; i<process.argv.length; i++){
   params = params + ' ' + process.argv[i]
 }
+
 switch(operation){
   case 'my-tweets':
     doTweets();
@@ -32,6 +33,47 @@ switch(operation){
     break;
   default:
     doError(3);  
+}
+
+function doTweets(){
+  var client = new Twitter({
+    consumer_key: process.env.TWITTER_CONSUMER_KEY,
+    consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+    access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
+    access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+  });
+
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'feed',
+      message: 'Whose tweets do you want to see?',
+      choices: [
+        'badbanana',
+        'SICKOFWOLVES',
+        'pourmecoffee',
+        'TheTweetOfGod'
+      ]
+    }
+  ])
+  .then(answers => {
+    var params = {screen_name: answers.feed};
+    client.get('statuses/user_timeline', params, function(error, tweets, response) {
+      doLog("'my-tweets' results showing tweets for "+ answers.feed);
+      if (!error) {
+        for(i=0; i< tweets.length; i++){
+          console.log(tweets[i].created_at);
+          console.log(tweets[i].text);
+          console.log("-------------------------------------------------------------------");
+          doLog(tweets[i].created_at + ': ' + tweets[i].text);
+        }
+      }
+      else {
+        doError(4);
+      }
+    });
+  });
+
 }
 
 function doSpotify(title){
