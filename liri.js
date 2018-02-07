@@ -6,7 +6,11 @@ var request = require('request');
 var Twitter = require('twitter');
 var Spotify = require('node-spotify-api');
 var inquirer = require('inquirer');
+var keys = require('./keys.js');
 
+// console.log('Keys.twitter: '+JSON.stringify(keys.twitter));
+
+// console.log('Keys.spotify: '+JSON.stringify(keys.spotify));
 
 // LIRI flow control
 var operation = process.argv[2];
@@ -36,12 +40,7 @@ switch(operation){
 }
 
 function doTweets(){
-  var client = new Twitter({
-    consumer_key: process.env.TWITTER_CONSUMER_KEY,
-    consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-    access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
-    access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-  });
+var client = new Twitter(keys.twitter);
 
   inquirer.prompt([
     {
@@ -57,8 +56,8 @@ function doTweets(){
     }
   ])
   .then(answers => {
-    var params = {screen_name: answers.feed};
-    client.get('statuses/user_timeline', params, function(error, tweets, response) {
+    var t_params = {screen_name: answers.feed};
+    client.get('statuses/user_timeline', t_params, function(error, tweets, response) {
       doLog("'my-tweets' results showing tweets for "+ answers.feed);
       if (!error) {
         for(i=0; i< tweets.length; i++){
@@ -86,10 +85,11 @@ function doSpotify(title){
     song_title = 'the sign';
   }
   // query spotify
-  var spotify = new Spotify({
-    id: process.env.SPOTIFY_ID,
-    secret: process.env.SPOTIFY_SECRET
-  }); 
+  // var spotify = new Spotify({
+  //   id: process.env.SPOTIFY_ID,
+  //   secret: process.env.SPOTIFY_SECRET
+  // });
+  var spotify = new Spotify(keys.spotify); 
   spotify
   .search({ type: 'track', query: song_title})
   .then(function(tracks) {
