@@ -54,3 +54,21 @@ Users who clone LIRI from github will need to supply their own .env file for it 
 -  **Step Three:** Once logged in, navigate to https://developer.spotify.com/my-applications/#!/applications/create to register a new application to be used with the Spotify API. You can fill in whatever you'd like for these fields. When finished, click the "complete" button.
 
 -  **Step Four:** On the next screen, scroll down to where you see your client id and client secret. Copy these values into the .env file replacing the  `your-spotify-id` and `your-spotify-secret` placeholders.
+
+## Technical Notes
+
+Liri Bot uses these modules:
+
+- dotenv  https://www.npmjs.com/package/dotenv
+  A module that loads variables from a .env file into a computer's environment.  This in conjunction with exported objects in file.js make it possible to deliver Liri Bot without exposing the developer's Spotify and Twitter keys.  See **Create .env** above.
+- fs -- fs is a builtin node.js module that gives access to files on the computer.
+- request  https://www.npmjs.com/package/request
+  Simplifies making HTTP API calls.
+- twitter  https://www.npmjs.com/package/twitter
+  The Twitter API
+- node-spotify-api  https://www.npmjs.com/package/node-spotify-api
+  The Spotify API.
+- inquirer  https://www.npmjs.com/package/inquirer 
+  For command line menus.  I'm not interesting enough to come up with 20 tweets so I added a menu to select four interesting Twitter feeds.  (Seriously, check them out.)
+
+

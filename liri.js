@@ -19,7 +19,7 @@ for(i=3; i<process.argv.length; i++){
   params = params + ' ' + process.argv[i]
 }
 
-switch(operation){
+switch(operation){rf
   case 'my-tweets':
     doTweets();
     break;
@@ -84,11 +84,6 @@ function doSpotify(title){
     // default to this crap song
     song_title = 'the sign';
   }
-  // query spotify
-  // var spotify = new Spotify({
-  //   id: process.env.SPOTIFY_ID,
-  //   secret: process.env.SPOTIFY_SECRET
-  // });
   var spotify = new Spotify(keys.spotify); 
   spotify
   .search({ type: 'track', query: song_title})
@@ -123,8 +118,10 @@ function doMovie(title){
   else {
     // trim leading whitespace and replace internal spaces with '+'
     title = title.trim().replace(" ", "+");
+    // console.log("Title after trim and replase: "+title);
     // assemble request URL
     var queryUrl = "http://www.omdbapi.com/?t=" + title + "&y=&plot=short&apikey=trilogy";
+    console.log(queryUrl);
     // create a request to the queryUrl
     request.get(queryUrl, function(err, res, body){
       // add check for !error && response.statusCode===200 
@@ -136,8 +133,8 @@ function doMovie(title){
       for (i=0; i<movieObj.Ratings.length; i++){
         if (movieObj.Ratings[i].Source === 'Internet Movie Database') {
           imdb_rating = movieObj.Ratings[i].Value;
-        };
-        if (movieObj.Ratings[i].Source === 'Rotten Tomatoes') {
+        }
+        else if (movieObj.Ratings[i].Source === 'Rotten Tomatoes') {
           rotTomatoes = movieObj.Ratings[i].Value;
         };
       };
