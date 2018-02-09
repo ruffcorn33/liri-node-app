@@ -8,18 +8,23 @@ var Spotify = require('node-spotify-api');
 var inquirer = require('inquirer');
 var keys = require('./keys.js');
 
-// console.log('Keys.twitter: '+JSON.stringify(keys.twitter));
-
-// console.log('Keys.spotify: '+JSON.stringify(keys.spotify));
-
-// LIRI flow control
+// FRONT LOAD THE PARAMETERS.  index 2 will hold the operation. 
+// 3 and beyond will a song title or a movie title as a set of strings.
+// they will be concatenated into one string in a var called params.
+// if the user does not enter anything beyond the operation, then 
+// params is initialized to be an empty string to prevent throwing 
+// errors on undefined.
 var operation = process.argv[2];
 var params = "";
 for(i=3; i<process.argv.length; i++){
   params = params + ' ' + process.argv[i]
 }
 
-switch(operation){rf
+// LIRI FLOW CONTROL
+// LIRI can be run several different ways.  This case statement
+// directs control to the relevent function based on the value in 
+// operation
+switch(operation){
   case 'my-tweets':
     doTweets();
     break;
@@ -40,8 +45,13 @@ switch(operation){rf
 }
 
 function doTweets(){
-var client = new Twitter(keys.twitter);
-
+  // getting the twitter keys object that are stored in .env via
+  // exports in the keys.js file.  This magic is thanks to the dotenv 
+  // module
+  var client = new Twitter(keys.twitter);
+  // I didn't have twenty interesting things to say so instead, I 
+  // let the user choose from four interesting twitter feeds.  the
+  // menus is handled by the inquirer module.
   inquirer.prompt([
     {
       type: 'list',
@@ -52,7 +62,7 @@ var client = new Twitter(keys.twitter);
         'SICKOFWOLVES',
         'pourmecoffee',
         'TheTweetOfGod'
-      ]
+      ] 
     }
   ])
   .then(answers => {
@@ -76,7 +86,7 @@ var client = new Twitter(keys.twitter);
 }
 
 function doSpotify(title){
-  let song_title = ""; 
+  
   if(title != ""){
     song_title = title
   }
@@ -88,6 +98,7 @@ function doSpotify(title){
   spotify
   .search({ type: 'track', query: song_title})
   .then(function(tracks) {
+    // console.log(JSON.stringify(tracks));
     var songBreak = '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~';
     var song = tracks.tracks.items[0].name;
     var artist = tracks.tracks.items[0].artists[0].name;
@@ -107,64 +118,66 @@ function doSpotify(title){
   })
   .catch(function(err) {
     console.log(err);
+    doLog(err);
   });
 }
 
 function doMovie(title){
   // throw error for no movie title
   if (!title){
-    doError(2);
+    // doError(2);
+    title = "mr nobody";
   }
-  else {
-    // trim leading whitespace and replace internal spaces with '+'
-    title = title.trim().replace(" ", "+");
-    // console.log("Title after trim and replase: "+title);
-    // assemble request URL
-    var queryUrl = "http://www.omdbapi.com/?t=" + title + "&y=&plot=short&apikey=trilogy";
-    console.log(queryUrl);
-    // create a request to the queryUrl
-    request.get(queryUrl, function(err, res, body){
-      // add check for !error && response.statusCode===200 
+ 
+  // trim leading whitespace and replace internal spaces with '+'
+  title = title.trim().replace(" ", "+");
+  // console.log("Title after trim and replase: "+title);
+  // assemble request URL
+  var queryUrl = "http://www.omdbapi.com/?t=" + title + "&y=&plot=short&apikey=trilogy";
+  console.log(queryUrl);
+  // create a request to the queryUrl
+  request.get(queryUrl, function(err, res, body){
+    // add check for !error && response.statusCode===200 
 
-      var movieObj = JSON.parse(body); // console.log(movieObj);
-      var imdb_rating;
-      var rotTomatoes;
-      // loop through the Ratings array of objects  
-      for (i=0; i<movieObj.Ratings.length; i++){
-        if (movieObj.Ratings[i].Source === 'Internet Movie Database') {
-          imdb_rating = movieObj.Ratings[i].Value;
-        }
-        else if (movieObj.Ratings[i].Source === 'Rotten Tomatoes') {
-          rotTomatoes = movieObj.Ratings[i].Value;
-        };
+    var movieObj = JSON.parse(body); // console.log(movieObj);
+    var imdb_rating;
+    var rotTomatoes;
+    // loop through the Ratings array of objects  
+    for (i=0; i<movieObj.Ratings.length; i++){
+      if (movieObj.Ratings[i].Source === 'Internet Movie Database') {
+        imdb_rating = movieObj.Ratings[i].Value;
+      }
+      else if (movieObj.Ratings[i].Source === 'Rotten Tomatoes') {
+        rotTomatoes = movieObj.Ratings[i].Value;
       };
-      // output movie data to console
-      doLog("'movie-this' results")
-      console.log('Title: '+movieObj.Title);
-      doLog('Title: '+movieObj.Title);
-      console.log('Year: '+movieObj.Year);
-      doLog('Year: '+movieObj.Year);
-      if (imdb_rating){
-        console.log('IMDB Rating: '+imdb_rating);
-        doLog('IMDB Rating: '+imdb_rating);
-      };
-      if (rotTomatoes){
-        console.log('Rotten Tomatoes Score: '+rotTomatoes);
-        doLog('Rotten Tomatoes Score: '+rotTomatoes);
-      };
-      console.log('Country: '+movieObj.Country);
-      doLog('Country: '+movieObj.Country);
-      console.log('Language: '+movieObj.Language);
-      doLog('Language: '+movieObj.Language);
-      if (movieObj.Plot != 'N/A'){
-        console.log('Plot: '+movieObj.Plot);
-        doLog('Plot: '+movieObj.Plot);
-      };
-      console.log('Actors: '+movieObj.Actors); 
-      doLog('Actors: '+movieObj.Actors);
+    };
+    // output movie data to console
+    doLog("'movie-this' results")
+    console.log('Title: '+movieObj.Title);
+    doLog('Title: '+movieObj.Title);
+    console.log('Year: '+movieObj.Year);
+    doLog('Year: '+movieObj.Year);
+    if (imdb_rating){
+      console.log('IMDB Rating: '+imdb_rating);
+      doLog('IMDB Rating: '+imdb_rating);
+    };
+    if (rotTomatoes){
+      console.log('Rotten Tomatoes Score: '+rotTomatoes);
+      doLog('Rotten Tomatoes Score: '+rotTomatoes);
+    };
+    console.log('Country: '+movieObj.Country);
+    doLog('Country: '+movieObj.Country);
+    console.log('Language: '+movieObj.Language);
+    doLog('Language: '+movieObj.Language);
+    if (movieObj.Plot != 'N/A'){
+      console.log('Plot: '+movieObj.Plot);
+      doLog('Plot: '+movieObj.Plot);
+    };
+    console.log('Actors: '+movieObj.Actors); 
+    doLog('Actors: '+movieObj.Actors);
 
-    });
-  }
+  });
+
 }
 
 function doRandom(){
